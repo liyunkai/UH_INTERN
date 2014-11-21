@@ -59,6 +59,10 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     double vfps = 1000 / fps;  //get time of every frame
     int frames=(int)cvGetCaptureProperty(capture,CV_CAP_PROP_FRAME_COUNT);//get total number of frames
     mexPrintf("fps is %d,frames number is %d\n", fps, frames);
+    //grid
+    int widthVideo = (int)cvGetCaptureProperty(capture,CV_CAP_PROP_FRAME_WIDTH);
+    int heightVideo = (int)cvGetCaptureProperty(capture,CV_CAP_PROP_FRAME_HEIGHT);
+    int gridStep = 40;
     const char *pstrWindowsTitle1 = "video";
     cvNamedWindow(pstrWindowsTitle1,CV_WINDOW_AUTOSIZE);
     IplImage * frame = NULL;
@@ -67,7 +71,16 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     CvRect* r = NULL;
     CvPoint center;
     int radius;
-    cvSetCaptureProperty(capture, CV_CAP_PROP_POS_MSEC, videoStartTimetamp);//go to the start frame according to the time in ms
+    //the font variable    
+    CvFont font;    
+    double hScale=0.5;   
+    double vScale=0.5;    
+    double lineWidth=0.2;//  
+    char showMsg[30];
+    //control key
+    char inputChar;
+    ////go to the start frame according to the time in ms
+    cvSetCaptureProperty(capture, CV_CAP_PROP_POS_MSEC, videoStartTimetamp);
     while(1)
     {   
         if( !(frame = cvQueryFrame(capture)) )//get one frame
@@ -84,15 +97,72 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             center.y = (int)areaData[areaIndexY(frameSeq,m,areaRows)];
             radius = (int)areaData[areaIndexR(frameSeq,m,areaRows)];
             cvCircle(frame, center, radius, FaceCirclecolors[m%7], 2);
+            sprintf(showMsg,"(%d,%d)",center.x,center.y);
+            cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX|CV_FONT_ITALIC, hScale,vScale,0,lineWidth);// 
+            cvPutText(frame,showMsg,center,&font,FaceCirclecolors[m%7]);
         }
         //draw data
         center.x = eyeData[dataIndexX(frameSeq,startIndexEyeData,eyeRows)];
         center.y = eyeData[dataIndexY(frameSeq,startIndexEyeData,eyeRows)];
         radius = 5;
         cvCircle(frame, center, radius, FaceCirclecolors[0], 2);
+        sprintf(showMsg,"(%d,%d)",center.x,center.y);
+        cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX|CV_FONT_ITALIC, hScale,vScale,0,lineWidth);// 
+        cvPutText(frame,showMsg,center,&font,CV_RGB(0,255,0));
+        //draw Grids
+        frameSeq = cvGetCaptureProperty(capture, CV_CAP_PROP_POS_FRAMES );
+        sprintf(showMsg,"Frame sequence is %d",(int)frameSeq);
+        // 
+        cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX|CV_FONT_ITALIC, hScale,vScale,0,lineWidth);//   
+        // cvPoint   
+        cvPutText(frame,showMsg,cvPoint(10,50),&font,CV_RGB(255,0,0));//put text on video
+        //draw grids on video
+        CvPoint startPoint,endPoint;
+        for(int p=0;p<=widthVideo/gridStep;p++)
+        {
+            startPoint.x = p*gridStep;
+            startPoint.y = 0;
+            endPoint.x = p*gridStep;
+            endPoint.y = heightVideo;
+            cvLine(frame,startPoint,endPoint,CV_RGB(0,0,255));
+            sprintf(showMsg,"%d",p*gridStep);
+            cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX|CV_FONT_ITALIC, hScale,vScale,0,lineWidth);// 
+            startPoint.y = startPoint.y +20;
+            cvPutText(frame,showMsg,startPoint,&font,CV_RGB(255,0,0));
+        }
+        for( int q=0;q<=heightVideo/gridStep;q++)
+        {
+            startPoint.x = 0;
+            startPoint.y = q*gridStep;
+            endPoint.x = widthVideo;
+            endPoint.y = q*gridStep;
+            cvLine(frame,startPoint,endPoint,CV_RGB(0,0,255));
+            sprintf(showMsg,"%d",q*gridStep);
+            cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX|CV_FONT_ITALIC, hScale,vScale,0,lineWidth);// 
+            cvPutText(frame,showMsg,startPoint,&font,CV_RGB(255,0,0));
+        }      
         //display
         cvShowImage(pstrWindowsTitle1,frame);      
-        if(27 == cvWaitKey(1))  break;// you can adjust the speed of video play with vfps, unit: ms
+        if( inputChar == 110 )   goto NEXT_LAST;    
+        if( inputChar == 108 )   goto NEXT_LAST;   
+        inputChar = cvWaitKey(vfps/2);
+        if( inputChar == 112 )  //hit P
+        {
+            NEXT_LAST:
+            while(1)    //Pause
+            {
+                inputChar = cvWaitKey(0);
+                if( inputChar == 112 )   break; //hit P, continue;
+                if( inputChar == 27 )   break;  //hit ESC to exit.
+                if( inputChar == 110 )   break; //hit N, the next frame
+                if( inputChar == 108 )   //hit L, the last frame. But can't work
+                {
+                    cvSetCaptureProperty(capture, CV_CAP_PROP_POS_MSEC , cvGetCaptureProperty(capture, CV_CAP_PROP_POS_MSEC)-vfps);
+                    break; 
+                }
+            }
+        }
+        if( inputChar == 27 )   break; 
     }
     cvDestroyWindow(pstrWindowsTitle1);
     cvReleaseCapture(&capture);

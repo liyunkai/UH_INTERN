@@ -40,7 +40,7 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         CvFont font;    
         double hScale=0.5;   
         double vScale=0.5;    
-        int lineWidth=0.2;//  
+        double lineWidth=0.2;//  
         char showMsg[30];
         sprintf(showMsg,"Frame sequence is %d",(int)frameSeq);
         // 
