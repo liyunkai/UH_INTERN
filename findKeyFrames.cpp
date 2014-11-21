@@ -48,20 +48,26 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         // cvPoint   
         cvPutText(frame,showMsg,cvPoint(10,50),&font,CV_RGB(255,0,0));//put text on video
         cvShowImage(pstrWindowsTitle1,frame);                          //display
-        if( inputChar == 110 )   goto NEXT;     //hit N, the next frame
+        if( inputChar == 110 )   goto NEXT_LAST;    
+        if( inputChar == 108 )   goto NEXT_LAST;   
         inputChar = cvWaitKey(vfps/2);
         if( inputChar == 112 )  //hit P
         {
-            NEXT:
+            NEXT_LAST:
             while(1)    //Pause
             {
                 inputChar = cvWaitKey(0);
                 if( inputChar == 112 )   break; //hit P, continue;
-                if( inputChar == 27 )   break;
+                if( inputChar == 27 )   break;  //hit ESC to exit.
                 if( inputChar == 110 )   break; //hit N, the next frame
+                if( inputChar == 108 )   //hit L, the last frame. But can't work
+                {
+                    cvSetCaptureProperty(capture, CV_CAP_PROP_POS_MSEC , cvGetCaptureProperty(capture, CV_CAP_PROP_POS_MSEC)-vfps);
+                    break; 
+                }
             }
         }
-        if( inputChar == 27 )   break;  //hit ESC
+        if( inputChar == 27 )   break; 
     }
     cvDestroyWindow(pstrWindowsTitle1);
     cvReleaseCapture(&capture);
