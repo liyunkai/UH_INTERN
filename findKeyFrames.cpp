@@ -3,33 +3,8 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/opencv.hpp>
 
-typedef struct Area{
-    double x;
-    double y;
-    double r;
-}Area, *pArea;
-#define AreaMember (sizeof(Area)/sizeof(double))
-#define Columns (AreaMember*7)
-#define IndexX(x,y,frames) ((AreaMember*y)*(frames)+(x))
-#define IndexY(x,y,frames) ((AreaMember*y+1)*(frames)+(x))
-#define IndexR(x,y,frames) ((AreaMember*y+2)*(frames)+(x))
-#define ArrSize(frames) ((frames)*Columns)
-
 void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
-{
-    //indicate the color of feature circle
-    CvScalar FaceCirclecolors[] = 
-                                {
-                                    {{0, 0, 255}},
-                                    {{0, 128, 255}},
-                                    {{0, 255, 255}},
-                                    {{0, 255, 0}},
-                                    {{255, 128, 0}},
-                                    {{255, 255, 0}},
-                                    {{255, 0, 0}},
-                                    {{255, 0, 255}}
-                                };
-                                
+{                     
     //load video
     char *videoPath = mxArrayToString(prhs[0]);
     CvCapture * capture = cvCreateFileCapture(videoPath);  //open video
@@ -50,6 +25,7 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     CvPoint center;
     int radius;
     long row = 0;
+    char inputChar;
     for(row=0;;row++)
     {
         if( row >= frames ) break;
@@ -72,23 +48,24 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         // cvPoint   
         cvPutText(frame,showMsg,cvPoint(10,50),&font,CV_RGB(255,0,0));//put text on video
         cvShowImage(pstrWindowsTitle1,frame);                          //display
-        if(27 == cvWaitKey(vfps/2))  break;
-		if(112 == cvWaitKey(vfps/2))
-		{
-			while(1)
-			{
-                if( 112 == cvWaitKey(0) )   break;
-			}
-		}
+        if( inputChar == 110 )   goto NEXT;     //hit N, the next frame
+        inputChar = cvWaitKey(vfps/2);
+        if( inputChar == 112 )  //hit P
+        {
+            NEXT:
+            while(1)    //Pause
+            {
+                inputChar = cvWaitKey(0);
+                if( inputChar == 112 )   break; //hit P, continue;
+                if( inputChar == 27 )   break;
+                if( inputChar == 110 )   break; //hit N, the next frame
+            }
+        }
+        if( inputChar == 27 )   break;  //hit ESC
     }
     cvDestroyWindow(pstrWindowsTitle1);
     cvReleaseCapture(&capture);
 }
-
-
-
-
-
 
 
 

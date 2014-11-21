@@ -17,6 +17,7 @@ typedef struct Area{
 #define IndexY(frameSeq,areaSeq,frames) ( (AreaMember*(areaSeq)+1)*(frames)+(frameSeq) )
 #define IndexR(frameSeq,areaSeq,frames) ( (AreaMember*(areaSeq)+2)*(frames)+(frameSeq) )
 
+// for here, you need to modify the paths to your local haarxxx.xml paths
 const char *pstrEyeCascadePath = "D:\\opencv\\sources\\data\\haarcascades\\haarcascade_eye.xml";
 const char *pstrProfileFaceCascadePath = "D:\\opencv\\sources\\data\\haarcascades\\haarcascade_profileface.xml";
 const char *pstrMouthCascadePath = "D:\\opencv\\sources\\data\\haarcascades\\haarcascade_mcs_mouth.xml";
