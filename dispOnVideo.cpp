@@ -63,6 +63,7 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     int widthVideo = (int)cvGetCaptureProperty(capture,CV_CAP_PROP_FRAME_WIDTH);
     int heightVideo = (int)cvGetCaptureProperty(capture,CV_CAP_PROP_FRAME_HEIGHT);
     int gridStep = 40;
+    //some vars that will be used by the codes below
     const char *pstrWindowsTitle1 = "video";
     cvNamedWindow(pstrWindowsTitle1,CV_WINDOW_AUTOSIZE);
     IplImage * frame = NULL;
@@ -93,10 +94,12 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         int m;
         for(m=0;m<(int)(areaColumns/AreaMember);m++) //draw area
         {
+            // get the circle of the feature area
             center.x = (int)areaData[areaIndexX(frameSeq,m,areaRows)];
             center.y = (int)areaData[areaIndexY(frameSeq,m,areaRows)];
             radius = (int)areaData[areaIndexR(frameSeq,m,areaRows)];
             cvCircle(frame, center, radius, FaceCirclecolors[m%7], 2);
+            // put the cordinate of area on video
             sprintf(showMsg,"(%d,%d)",center.x,center.y);
             cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX|CV_FONT_ITALIC, hScale,vScale,0,lineWidth);// 
             cvPutText(frame,showMsg,center,&font,FaceCirclecolors[m%7]);
@@ -105,7 +108,7 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         center.x = eyeData[dataIndexX(frameSeq,startIndexEyeData,eyeRows)];
         center.y = eyeData[dataIndexY(frameSeq,startIndexEyeData,eyeRows)];
         radius = 5;
-        cvCircle(frame, center, radius, FaceCirclecolors[0], 2);
+        cvCircle(frame, center, radius, CV_RGB(0,255,0), 2);
         sprintf(showMsg,"(%d,%d)",center.x,center.y);
         cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX|CV_FONT_ITALIC, hScale,vScale,0,lineWidth);// 
         cvPutText(frame,showMsg,center,&font,CV_RGB(0,255,0));
@@ -115,7 +118,7 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         // 
         cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX|CV_FONT_ITALIC, hScale,vScale,0,lineWidth);//   
         // cvPoint   
-        cvPutText(frame,showMsg,cvPoint(10,50),&font,CV_RGB(255,0,0));//put text on video
+        cvPutText(frame,showMsg,cvPoint(10,65),&font,CV_RGB(255,0,0));//put text on video
         //draw grids on video
         CvPoint startPoint,endPoint;
         for(int p=0;p<=widthVideo/gridStep;p++)
@@ -141,7 +144,7 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX|CV_FONT_ITALIC, hScale,vScale,0,lineWidth);// 
             cvPutText(frame,showMsg,startPoint,&font,CV_RGB(255,0,0));
         }      
-        //display
+        //display video frame
         cvShowImage(pstrWindowsTitle1,frame);      
         if( inputChar == 110 )   goto NEXT_LAST;    
         if( inputChar == 108 )   goto NEXT_LAST;   

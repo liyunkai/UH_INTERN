@@ -1,5 +1,5 @@
 function info = func(data,startTimeStamp,areaManu)
-%% key frames number that be found
+%% the number of key frames where face appears, not that exact
 ChildAppear = 76;
 MaidAppear = 250;
 MaidAppearFace = 360;
@@ -13,13 +13,13 @@ ManAppear3 = 1265;
 keyFrameStart = 1;
 keyFrameEnd = length(areaManu);
 Step = 4;
-GazeLXColumn = 5;
+GazeLXColumn = 5;   % indicate the column of GazeLeft
 GazeLYColumn = 6;
 TimeColumn = 1;
 Num_FixOnFace = 0;
 Dur_FixOnface = 0;
 startDataIndex = find(data(:,1),startTimeStamp);
-%% decide if the data fixations are in the face area
+%% an example, decide if the data fixations are in the face area, we can also calculate the duration meantime.
 for m = keyFrameStart : keyFrameEnd
     for n = startDataIndex : startDataIndex+Step
         for k = 1:3:length(areaManu(1,:))-3
