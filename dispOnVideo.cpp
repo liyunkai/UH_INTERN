@@ -70,7 +70,7 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     double ratio;
     CvSeq *pcvSeqFaces = NULL;
     CvRect* r = NULL;
-    CvPoint center;
+    CvPoint center,lastInsizeData;
     int radius;
     //the font variable    
     CvFont font;    
@@ -108,10 +108,20 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         center.x = eyeData[dataIndexX((int)(60.0f/25*frameSeq),startIndexEyeData,eyeRows)];
         center.y = eyeData[dataIndexY((int)(60.0f/25*frameSeq),startIndexEyeData,eyeRows)];
         radius = 5;
+        if( center.x>0 && center.x<widthVideo && center.y>0 && center.y<heightVideo )   //if the eye data is inner the video size
+        {
+            lastInsizeData.x = center.x;
+            lastInsizeData.y = center.y;
+        }
+        else    //display the last insize data to make the eye data point look more steady.
+        {
+            center.x = lastInsizeData.x;
+            center.y = lastInsizeData.y;
+        }
         cvCircle(frame, center, radius, CV_RGB(0,255,0), 2);
         sprintf(showMsg,"(%d,%d)",center.x,center.y);
         cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX|CV_FONT_ITALIC, hScale,vScale,0,lineWidth);// 
-        cvPutText(frame,showMsg,cvPoint(200,200),&font,CV_RGB(0,255,0));
+        cvPutText(frame,showMsg,center,&font,CV_RGB(0,255,0));
         //draw Grids
         frameSeq = cvGetCaptureProperty(capture, CV_CAP_PROP_POS_FRAMES );
         sprintf(showMsg,"Frame sequence is %d",(int)frameSeq);

@@ -16,25 +16,25 @@ path = [dataPath '\' ASD_Oxy];
 dataList = dir(path);
 for m=3:length(dataList)
     data = xlsread([path '\' dataList(m).name]);
-    info = func(data,startTimeStamp,areaManu); % you can rename the func name and the output, this is an example
+    info1 = func(data,startTimeStamp,areaManu); % you can rename the func name and the output, this is an example
 end
 path = [dataPath '\' ASD_Pla];
 dataList = dir(path);
 for m=3:length(dataList)
     data = xlsread([path '\' dataList(m).name]);
-    info = func(data,startTimeStamp,areaManu);
+    info2 = func(data,startTimeStamp,areaManu);
 end
 path = [dataPath '\' Ctrl_Oxy];
 dataList = dir(path);
 for m=3:length(dataList)
     data = xlsread([path '\' dataList(m).name]);
-    info = func(data,startTimeStamp,areaManu);
+    info3 = func(data,startTimeStamp,areaManu);
 end
 path = [dataPath '\' Ctrl_Pla];
 dataList = dir(path);
 for m=3:length(dataList)
     data = xlsread([path '\' dataList(m).name]);
-    info = func(data,startTimeStamp,areaManu);
+    info4 = func(data,startTimeStamp,areaManu);
 end
 %% analyse
 
