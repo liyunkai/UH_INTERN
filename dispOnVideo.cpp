@@ -105,13 +105,13 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             cvPutText(frame,showMsg,center,&font,FaceCirclecolors[m%7]);
         }
         //draw data
-        center.x = eyeData[dataIndexX(frameSeq,startIndexEyeData,eyeRows)];
-        center.y = eyeData[dataIndexY(frameSeq,startIndexEyeData,eyeRows)];
+        center.x = eyeData[dataIndexX((int)(60.0f/25*frameSeq),startIndexEyeData,eyeRows)];
+        center.y = eyeData[dataIndexY((int)(60.0f/25*frameSeq),startIndexEyeData,eyeRows)];
         radius = 5;
         cvCircle(frame, center, radius, CV_RGB(0,255,0), 2);
         sprintf(showMsg,"(%d,%d)",center.x,center.y);
         cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX|CV_FONT_ITALIC, hScale,vScale,0,lineWidth);// 
-        cvPutText(frame,showMsg,center,&font,CV_RGB(0,255,0));
+        cvPutText(frame,showMsg,cvPoint(200,200),&font,CV_RGB(0,255,0));
         //draw Grids
         frameSeq = cvGetCaptureProperty(capture, CV_CAP_PROP_POS_FRAMES );
         sprintf(showMsg,"Frame sequence is %d",(int)frameSeq);
