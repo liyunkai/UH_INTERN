@@ -13,6 +13,7 @@ ManAppear3 = 1265;
 keyFrameStart = 1;
 keyFrameEnd = length(areaCvt);
 Step = 4;
+AreaMember = 4;
 GazeLXColumn = 5;   % indicate the column of GazeLeft
 GazeLYColumn = 6;
 TimeColumn = 1;
@@ -22,14 +23,16 @@ startDataIndex = find(data(:,1),startTimeStamp);
 %% an example, decide if the data fixations are in the face area, we can also calculate the duration meantime.
 for m = keyFrameStart : keyFrameEnd     %the start frame of video
     for n = startDataIndex : startDataIndex+Step    %the start index of eye data
-        for k = 1:3:length(areaCvt(1,:))-3
-            centerX = areaCvt(m,k);
-            centerY = areaCvt(m,k+1);
-            radius = areaCvt(m,k+2);
-            if (data(n,GazeLXColumn)>centerX-radius) && (data(n,GazeLXColumn)<centerX+radius) && (data(n,GazeLYColumn)>centerY-radius) && (data(n,GazeLYColumn)<centerY+radius)
+        for k = 1:AreaMember:length(areaCvt(1,:))-AreaMember
+            rX = areaCvt(m,k);
+            rY = areaCvt(m,k+1);
+            rWidth = areaCvt(m,k+2);
+			rHeight = areaCvt(m,k+3);
+            if (data(n,GazeLXColumn)>rX) && (data(n,GazeLXColumn)<rX+rWidth) && (data(n,GazeLYColumn)>rY) && (data(n,GazeLYColumn)<rY+rHeight)
                 Num_FixOnFace = Num_FixOnFace + 1;
                 Dur_FixOnface = Dur_FixOnface + (data(n,TimeColumn)-data(n-1,TimeColumn));
-                
+                % do something else
+				
                 break;
             end
         end
@@ -39,7 +42,7 @@ end
 %% convert information out
 info.NumberFixationOnFace = Num_FixOnFace;
 info.DurationFixationOnFace = Dur_FixOnface;
-
+%do something else
 
 end
 

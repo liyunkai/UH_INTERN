@@ -7,7 +7,8 @@
 typedef struct Area{
     double x;
     double y;
-    double r;
+    double width;
+    double height;
 }Area, *pArea;
 
 #define AreaMember (sizeof(Area)/sizeof(double))
@@ -15,11 +16,8 @@ typedef struct Area{
 #define ArrSize(frames) ((frames)*Columns)
 #define IndexX(frameSeq,areaSeq,frames) ( (AreaMember*(areaSeq))*(frames)+(frameSeq) )
 #define IndexY(frameSeq,areaSeq,frames) ( (AreaMember*(areaSeq)+1)*(frames)+(frameSeq) )
-#define IndexR(frameSeq,areaSeq,frames) ( (AreaMember*(areaSeq)+2)*(frames)+(frameSeq) )
-
-#define ConvertX(x) 
-#define ConvertY(y)
-#define ConvertR(r)
+#define IndexWidth(frameSeq,areaSeq,frames) ( (AreaMember*(areaSeq)+2)*(frames)+(frameSeq) )
+#define IndexHeight(frameSeq,areaSeq,frames) ( (AreaMember*(areaSeq)+3)*(frames)+(frameSeq) )
 
 // for here, you need to modify the paths to your local haarxxx.xml paths
 const char *pstrEyeCascadePath = "D:\\opencv\\sources\\data\\haarcascades\\haarcascade_eye.xml";
@@ -95,11 +93,9 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     double ratio;
     CvSeq *pcvSeqFaces = NULL;
     CvRect* r = NULL;
-    CvPoint center;
-    int radius;
     long row = 0;
     double startTimestamp = *(double *)mxGetData(prhs[1]);
-    cvSetCaptureProperty(capture, CV_CAP_PROP_POS_MSEC , startTimestamp);//go to the start frame according to the time in ms
+    //cvSetCaptureProperty(capture, CV_CAP_PROP_POS_MSEC , startTimestamp);//go to the start frame according to the time in ms
     for(row=0;;row++)
     {
         if( row >= frames ) break;
@@ -121,16 +117,12 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         for(; column <pcvSeqFaces->total; column++)
         {
             if( column >= Columns/AreaMember ) break;
-            
             r = (CvRect*)cvGetSeqElem(pcvSeqFaces, column);
-            center.x = cvRound((r->x + r->width * 0.5));
-            center.y = cvRound((r->y + r->height * 0.5));
-            radius = cvRound((r->width + r->height) * 0.25);
-            cvCircle(frame, center, radius, FaceCirclecolors[column % 8], 2);
-            
-            *(dynamicData+IndexX(frameSeq,column,frames)) = center.x;
-            *(dynamicData+IndexY(frameSeq,column,frames)) = center.y;
-            *(dynamicData+IndexR(frameSeq,column,frames)) = radius;
+            cvRectangle(frame,cvPoint(r->x,r->y-20),cvPoint(r->x + r->width,r->y + r->height),FaceCirclecolors[column % 8], 2);
+            *(dynamicData+IndexX(frameSeq,column,frames)) = r->x;
+            *(dynamicData+IndexY(frameSeq,column,frames)) = r->y-20;
+            *(dynamicData+IndexWidth(frameSeq,column,frames)) = r->width;
+            *(dynamicData+IndexHeight(frameSeq,column,frames)) = r->height+20;
         }
         int hit = column;
         // recognize and mark
@@ -139,16 +131,12 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         for(; column-hit <pcvSeqFaces->total; column++)
         {
             if( column >= Columns/AreaMember ) break;
-            
             r = (CvRect*)cvGetSeqElem(pcvSeqFaces, column-hit);
-            center.x = cvRound((r->x + r->width * 0.5));
-            center.y = cvRound((r->y + r->height * 0.5));
-            radius = cvRound((r->width + r->height) * 0.35);
-            cvCircle(frame, center, radius, FaceCirclecolors[column % 8], 2);
-            
-            *(dynamicData+IndexX(frameSeq,column,frames)) = center.x;
-            *(dynamicData+IndexY(frameSeq,column,frames)) = center.y;
-            *(dynamicData+IndexR(frameSeq,column,frames)) = radius;
+           cvRectangle(frame,cvPoint(r->x,r->y-20),cvPoint(r->x + r->width,r->y + r->height),FaceCirclecolors[column % 8], 2);
+            *(dynamicData+IndexX(frameSeq,column,frames)) = r->x;
+            *(dynamicData+IndexY(frameSeq,column,frames)) = r->y-20;
+            *(dynamicData+IndexWidth(frameSeq,column,frames)) = r->width;
+            *(dynamicData+IndexHeight(frameSeq,column,frames)) = r->height+20;
         }
 
         cvShowImage(pstrWindowsTitle2, frame);

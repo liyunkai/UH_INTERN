@@ -6,7 +6,8 @@
 typedef struct Area{
     double x;
     double y;
-    double r;
+    double width;
+    double height;
 }Area, *pArea;
 
 /* data Index */
@@ -18,7 +19,8 @@ typedef struct Area{
 #define AreaMember (sizeof(Area)/sizeof(double))
 #define areaIndexX(frameSeq,areaSeq,rows) ( (AreaMember*(areaSeq))*(rows)+(frameSeq) )
 #define areaIndexY(frameSeq,areaSeq,rows) ( (AreaMember*(areaSeq)+1)*(rows)+(frameSeq) )
-#define areaIndexR(frameSeq,areaSeq,rows) ( (AreaMember*(areaSeq)+2)*(rows)+(frameSeq) )
+#define areaIndexW(frameSeq,areaSeq,rows) ( (AreaMember*(areaSeq)+2)*(rows)+(frameSeq) )
+#define areaIndexH(frameSeq,areaSeq,rows) ( (AreaMember*(areaSeq)+3)*(rows)+(frameSeq) )
 
 void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
@@ -69,7 +71,7 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     IplImage * frame = NULL;
     double ratio;
     CvSeq *pcvSeqFaces = NULL;
-    CvRect* r = NULL;
+    CvRect *r = NULL, areaR;
     CvPoint center,lastInsizeData;
     int radius;
     //the font variable    
@@ -95,10 +97,11 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         for(m=0;m<(int)(areaColumns/AreaMember);m++) //draw area
         {
             // get the circle of the feature area
-            center.x = (int)areaData[areaIndexX(frameSeq,m,areaRows)];
-            center.y = (int)areaData[areaIndexY(frameSeq,m,areaRows)];
-            radius = (int)areaData[areaIndexR(frameSeq,m,areaRows)];
-            cvCircle(frame, center, radius, FaceCirclecolors[m%7], 2);
+            areaR.x = (int)areaData[areaIndexX(frameSeq,m,areaRows)];
+            areaR.y = (int)areaData[areaIndexY(frameSeq,m,areaRows)];
+            areaR.width = (int)areaData[areaIndexW(frameSeq,m,areaRows)];
+			areaR.height = (int)areaData[areaIndexH(frameSeq,m,areaRows)];
+			cvRectangle(frame,cvPoint(areaR.x,areaR.y),cvPoint(areaR.x + areaR.width,areaR.y + areaR.height),FaceCirclecolors[m % 8], 2);
             // put the cordinate of area on video
             sprintf(showMsg,"(%d,%d)",center.x,center.y);
             cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX|CV_FONT_ITALIC, hScale,vScale,0,lineWidth);// 
